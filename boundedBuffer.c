@@ -41,6 +41,7 @@ int main(int argc, char *argv[]) {
     }
     numIters = atoi(argv[1]);
 
+    /*CREATE 3 PRODS AND 3 CONS's PER INSTRUCTION*/
     pthread_create(&pid1, NULL, Producer, NULL);
     pthread_create(&pid2, NULL, Producer, NULL);
     pthread_create(&pid3, NULL, Producer, NULL);
@@ -48,12 +49,14 @@ int main(int argc, char *argv[]) {
     pthread_create(&cid2, NULL, Consumer, NULL);
     pthread_create(&cid3, NULL, Consumer, NULL);
 
+    /*JOIN THREADS*/
     pthread_join(pid1, NULL);
     pthread_join(pid2, NULL);
     pthread_join(pid3, NULL);
     pthread_join(cid1, NULL);
     pthread_join(cid2, NULL);
     pthread_join(cid3, NULL);
+    free(data); // FREE HEAP ALLOCATED MEMORY
     pthread_exit(0);
 }
 
@@ -61,6 +64,7 @@ int main(int argc, char *argv[]) {
 void *Producer(void *arg) {
     int produced;
 
+    /*USE SEM WAITS TO ALLOW ATOMIC READING AND WRITING*/
     for (produced = 0; produced < numIters; produced++) {
         sem_wait(&empty);
         sem_wait(&mutex);
@@ -75,7 +79,7 @@ void *Producer(void *arg) {
 void *Consumer(void *arg) {
     int total = 0;
     int consumed;
-
+    /*VIRTUALLY SAME AS PRODUCER*/
     for (consumed = 0; consumed < numIters; consumed++) {
         sem_wait(&full);
         sem_wait(&mutex);
